@@ -65,6 +65,9 @@ function scrollToBottom() {
 }
 
 // Comunicação Real com sua API (Apps Script)
+// Recupera o histórico salvo ou cria um novo array vazio
+let chatHistory = JSON.parse(localStorage.getItem('biblia_history')) || [];
+
 async function handleSend() {
     const text = inputField.value.trim();
     if (!text) return;
@@ -72,42 +75,96 @@ async function handleSend() {
     addUserMessage(text);
     inputField.value = '';
 
-    // Validação de segurança para garantir que o link foi colado e não é uma chave de API
     if (!API_URL.includes("script.google.com")) {
-        addBibleResponse("Atenção: O link da API_URL parece incorreto. Certifique-se de usar o URL do Web App do Apps Script.");
+        addBibleResponse("Atenção: O link da API_URL parece incorreto.");
         return;
     }
 
     showLoading();
 
+    // Salva a mensagem do usuário no histórico (mantendo as últimas 6 mensagens para não pesar)
+    chatHistory.push({ role: 'user', content: text });
+    if (chatHistory.length > 6) chatHistory = chatHistory.slice(chatHistory.length - 6);
+
     try {
-        // Fazemos o POST como text/plain para contornar qualquer bloqueio de CORS do navegador
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
-            body: JSON.stringify({ mensagem: text })
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            // Enviamos o histórico junto com a mensagem atual!
+            body: JSON.stringify({ mensagem: text, historico: chatHistory }) 
         });
 
         const data = await response.json();
-        
         hideLoading();
 
         if (data.resposta) {
             addBibleResponse(data.resposta);
+            // Salva a resposta da IA no histórico
+            chatHistory.push({ role: 'ia', content: data.resposta });
+            localStorage.setItem('biblia_history', JSON.stringify(chatHistory));
         } else if (data.erro) {
             addBibleResponse("Sinto muito, houve uma perturbação no caminho: " + data.erro);
         }
 
     } catch (error) {
         hideLoading();
-        console.error("Erro na requisição:", error);
-        addBibleResponse("A paz esteja com você. No momento, não consegui me conectar. Tente novamente em breve.");
+        addBibleResponse("A paz esteja com você. No momento, não consegui me conectar.");
     }
 }
-
 sendBtn.addEventListener('click', handleSend);
 inputField.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSend();
 });
+
+// Atualize sua função addBibleResponse para incluir o botão de compartilhar
+function addBibleResponse(text) {
+    const block = document.createElement('div');
+    block.className = 'message-block';
+    // Colocamos um ID único para o canvas conseguir capturar
+    const msgId = 'msg-' + Date.now(); 
+    
+    block.innerHTML = `
+        <div class="bible-msg" id="${msgId}" style="padding: 20px; border-radius: 10px;"></div>
+        <button onclick="gerarCard('${msgId}')" style="background: transparent; border: 1px solid #E8D3A2; color: #E8D3A2; padding: 5px 15px; border-radius: 20px; cursor: pointer; margin-top: 15px; font-family: 'Inter'; font-size: 0.8rem;">
+            Compartilhar no Instagram
+        </button>
+    `;
+    timeline.appendChild(block);
+
+    const textContainer = block.querySelector('.bible-msg');
+    const words = text.split(' ');
+    
+    words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.textContent = word + ' ';
+        span.className = 'word-reveal';
+        span.style.animationDelay = `${index * 0.15}s`; 
+        textContainer.appendChild(span);
+    });
+
+    scrollToBottom();
+}
+
+// Função Mágica que tira a foto (html2canvas)
+function gerarCard(elementId) {
+    const elemento = document.getElementById(elementId);
+    
+    // Adiciona uma marca d'água temporária para a foto
+    const marcaAgua = document.createElement('div');
+    marcaAgua.innerHTML = "<br><span style='font-family: Inter; font-size: 0.8rem; color: rgba(255,255,255,0.4);'>Gerado no Chat Bíblico Imersivo</span>";
+    elemento.appendChild(marcaAgua);
+
+    html2canvas(elemento, {
+        backgroundColor: '#050505', // Mantém o fundo dark
+        scale: 2 // Aumenta a resolução para o Instagram
+    }).then(canvas => {
+        // Remove a marca d'água da tela do chat
+        elemento.removeChild(marcaAgua);
+        
+        // Dispara o download da imagem
+        const link = document.createElement('a');
+        link.download = 'conselho_biblico.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
