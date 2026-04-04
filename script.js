@@ -3,7 +3,7 @@ const sendBtn = document.getElementById('send-btn');
 const timeline = document.getElementById('chat-timeline');
 
 // O URL do seu Web App gerado no Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbyC1UgIUd6RFmORiisFxMXGwJeJfmG8FVUmxbB-DJCwmkAit4NrRCPIuifkjoISBeKp6g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbx2zN4QIM5PMBa9DfhNhoPeFC62NflJfi1zNyDyA9XXQ_U3fNWRM_qXfKTb9MNfIbGJ-Q/exec';
 
 // Adiciona a mensagem do usuário
 function addUserMessage(text) {
