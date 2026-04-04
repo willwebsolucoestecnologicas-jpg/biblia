@@ -33,16 +33,33 @@ function hideLoading() {
 }
 
 // Simula a resposta da Bíblia com efeito de revelação
+// ... (seu código existente: inputField, sendBtn, etc.) ...
+
+// Função para adicionar a mensagem da IA com o botão de compartilhamento
 function addBibleResponse(text) {
     const block = document.createElement('div');
     block.className = 'message-block';
     
+    // Conteúdo da mensagem com ID único
     const textContainer = document.createElement('div');
     textContainer.className = 'bible-msg';
+    const msgId = 'msg-' + Date.now(); // Gera um ID único com base no tempo
+    textContainer.id = msgId;
     block.appendChild(textContainer);
+
+    // Cria o botão de compartilhamento sutil
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'share-btn';
+    shareBtn.textContent = 'Compartilhar';
+    // Define a ação do botão, passando o ID da mensagem para a função
+    shareBtn.onclick = function() {
+        compartilharMensagem(msgId);
+    };
+    block.appendChild(shareBtn);
+
     timeline.appendChild(block);
 
-    // Divide o texto em palavras para animar uma a uma
+    // Divide o texto em palavras para animar uma a uma (mantendo sua animação)
     const words = text.split(' ');
     textContainer.innerHTML = ''; 
 
@@ -50,12 +67,52 @@ function addBibleResponse(text) {
         const span = document.createElement('span');
         span.textContent = word + ' ';
         span.className = 'word-reveal';
+        // Atraso escalonado para cada palavra
         span.style.animationDelay = `${index * 0.15}s`; 
         textContainer.appendChild(span);
     });
 
     scrollToBottom();
 }
+
+// NOVA FUNÇÃO MÁGICA: Lógica para popular e capturar o card formatado
+function compartilharMensagem(messageId) {
+    const originalMessageElement = document.getElementById(messageId);
+    if (!originalMessageElement) return;
+
+    // 1. Pega o texto limpo da mensagem (sem as spans de animação)
+    const textToShare = originalMessageElement.textContent;
+
+    // 2. Popula o Card de Compartilhamento oculto com este texto
+    const cardContentElement = document.getElementById('card-content');
+    cardContentElement.textContent = textToShare;
+
+    // 3. Torna o card visível temporariamente para a captura
+    const cardContainer = document.getElementById('share-card-container');
+    const cardElement = document.getElementById('share-card');
+    cardContainer.style.display = 'block';
+
+    // 4. Usa o html2canvas para capturar APENAS o card
+    html2canvas(cardElement, {
+        scale: 1, // Capture na escala 1:1 do elemento, que já é alta (1080px)
+        backgroundColor: '#050505', // Garante o fundo preto do tema
+        logging: false, // Desativa logs no console
+    }).then(canvas => {
+        // 5. Esconde o card novamente
+        cardContainer.style.display = 'none';
+
+        // 6. Converte o canvas para imagem (dataURL)
+        const imgData = canvas.toDataURL('image/png');
+
+        // 7. Dispara o download da imagem final
+        const link = document.createElement('a');
+        link.download = 'conselho-biblico.png';
+        link.href = imgData;
+        link.click();
+    });
+}
+
+// ... (resto do seu código: scrollToBottom, handleSend, etc.) ...
 
 function scrollToBottom() {
     timeline.scrollTo({
