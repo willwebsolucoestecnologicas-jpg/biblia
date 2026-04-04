@@ -152,3 +152,76 @@ body {
 #send-btn:hover {
     opacity: 0.8;
 }
+
+/* ... (seus estilos existentes) ... */
+
+/* ESTILOS PARA O CARD DE COMPARTILHAMENTO */
+#share-card-container {
+    position: fixed;
+    top: -2000px; /* Esconde bem longe da tela */
+    left: -2000px;
+    z-index: -1000;
+}
+
+#share-card {
+    width: 1080px; /* Largura padrão para Instagram */
+    height: 1350px; /* Altura para aspecto 4:5 */
+    background-color: #050505; /* Fundo do tema */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 100px; /* Margens internas generosas */
+    border: 2px solid rgba(232, 211, 162, 0.3); /* Borda dourada sutil */
+    box-shadow: 0 0 50px rgba(232, 211, 162, 0.1); /* Brilho sutil */
+}
+
+#share-card .card-header {
+    text-align: center;
+}
+
+#share-card .app-logo-text {
+    font-family: 'Cinzel', serif;
+    color: #E8D3A2;
+    font-size: 2rem;
+    letter-spacing: 2px;
+}
+
+#share-card .bible-msg {
+    flex: 1; /* Preenche o espaço central */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 3rem; /* Fonte maior para o card */
+    margin: 60px 0;
+    line-height: 1.4;
+}
+
+#share-card .card-footer {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.2rem;
+}
+
+/* ESTILO PARA O BOTÃO DE COMPARTILHAMENTO NO CHAT */
+.share-btn {
+    background: transparent;
+    border: 1px solid rgba(232, 211, 162, 0.3);
+    color: rgba(232, 211, 162, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+    border-color: #E8D3A2;
+    color: #E8D3A2;
+    box-shadow: 0 0 10px rgba(232, 211, 162, 0.2);
+}
