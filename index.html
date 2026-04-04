@@ -179,70 +179,117 @@
 
     <script>
         const inputField = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const timeline = document.getElementById('chat-timeline');
+const sendBtn = document.getElementById('send-btn');
+const timeline = document.getElementById('chat-timeline');
 
-        // Função para adicionar a mensagem do usuário na tela
-        function addUserMessage(text) {
-            const block = document.createElement('div');
-            block.className = 'message-block';
-            block.innerHTML = `<div class="user-msg">${text}</div>`;
-            timeline.appendChild(block);
-            scrollToBottom();
-        }
+// COLE AQUI O URL DO SEU GOOGLE APPS SCRIPT (Web App)
+const API_URL = 'https://script.google.com/macros/s/AKfycbyC1UgIUd6RFmORiisFxMXGwJeJfmG8FVUmxbB-DJCwmkAit4NrRCPIuifkjoISBeKp6g/exec';
 
-        // Função para simular a resposta da IA/Bíblia com efeito de revelação
-        function addBibleResponse(text) {
-            const block = document.createElement('div');
-            block.className = 'message-block';
-            
-            const textContainer = document.createElement('div');
-            textContainer.className = 'bible-msg';
-            block.appendChild(textContainer);
-            timeline.appendChild(block);
+// Adiciona a mensagem do usuário
+function addUserMessage(text) {
+    const block = document.createElement('div');
+    block.className = 'message-block';
+    block.innerHTML = `<div class="user-msg">${text}</div>`;
+    timeline.appendChild(block);
+    scrollToBottom();
+}
 
-            // Divide o texto em palavras para animar uma a uma
-            const words = text.split(' ');
-            textContainer.innerHTML = ''; // Limpa antes de começar
+// Adiciona o indicador de carregamento
+function showLoading() {
+    const block = document.createElement('div');
+    block.className = 'message-block loading-msg';
+    block.id = 'loading-indicator';
+    block.innerHTML = `<div class="bible-msg" style="font-size: 1.1rem; opacity: 0.5;">Buscando nas escrituras...</div>`;
+    timeline.appendChild(block);
+    scrollToBottom();
+}
 
-            words.forEach((word, index) => {
-                const span = document.createElement('span');
-                span.textContent = word + ' ';
-                span.className = 'word-reveal';
-                // Atraso escalonado para cada palavra
-                span.style.animationDelay = `${index * 0.15}s`; 
-                textContainer.appendChild(span);
-            });
+// Remove o indicador de carregamento
+function hideLoading() {
+    const loading = document.getElementById('loading-indicator');
+    if (loading) {
+        loading.remove();
+    }
+}
 
-            scrollToBottom();
-        }
+// Simula a resposta da Bíblia com efeito de revelação
+function addBibleResponse(text) {
+    const block = document.createElement('div');
+    block.className = 'message-block';
+    
+    const textContainer = document.createElement('div');
+    textContainer.className = 'bible-msg';
+    block.appendChild(textContainer);
+    timeline.appendChild(block);
 
-        function scrollToBottom() {
-            timeline.scrollTo({
-                top: timeline.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
+    // Divide o texto em palavras para animar uma a uma
+    const words = text.split(' ');
+    textContainer.innerHTML = ''; 
 
-        // Simulação do envio
-        function handleSend() {
-            const text = inputField.value.trim();
-            if (!text) return;
+    words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.textContent = word + ' ';
+        span.className = 'word-reveal';
+        span.style.animationDelay = `${index * 0.15}s`; 
+        textContainer.appendChild(span);
+    });
 
-            addUserMessage(text);
-            inputField.value = '';
+    scrollToBottom();
+}
 
-            // Simula o tempo de processamento da IA (1.5 segundos)
-            setTimeout(() => {
-                const simulacaoResposta = "Não andeis ansiosos por coisa alguma; antes, em tudo, sejam os vossos pedidos conhecidos diante de Deus pela oração e súplica com ações de graças.";
-                addBibleResponse(simulacaoResposta);
-            }, 1500);
-        }
+function scrollToBottom() {
+    timeline.scrollTo({
+        top: timeline.scrollHeight,
+        behavior: 'smooth'
+    });
+}
 
-        sendBtn.addEventListener('click', handleSend);
-        inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
+// Comunicação Real com sua API (Apps Script)
+async function handleSend() {
+    const text = inputField.value.trim();
+    if (!text) return;
+
+    addUserMessage(text);
+    inputField.value = '';
+
+    if (API_URL === 'COLE_SEU_LINK_AQUI') {
+        addBibleResponse("Atenção: Você esqueceu de colar o URL do seu Web App no código fonte.");
+        return;
+    }
+
+    showLoading();
+
+    try {
+        // Fazemos o POST como text/plain para contornar qualquer bloqueio de CORS do navegador
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({ mensagem: text })
         });
+
+        const data = await response.json();
+        
+        hideLoading();
+
+        if (data.resposta) {
+            addBibleResponse(data.resposta);
+        } else if (data.erro) {
+            addBibleResponse("Sinto muito, houve uma perturbação no caminho: " + data.erro);
+        }
+
+    } catch (error) {
+        hideLoading();
+        console.error("Erro na requisição:", error);
+        addBibleResponse("A paz esteja com você. No momento, não consegui me conectar. Tente novamente em breve.");
+    }
+}
+
+sendBtn.addEventListener('click', handleSend);
+inputField.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSend();
+});
     </script>
 
 </body>
