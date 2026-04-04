@@ -145,20 +145,38 @@ function addBibleResponse(text) {
     scrollToBottom();
 }
 
-// Função Mágica que tira a foto (html2canvas)
+// Função Mágica Atualizada para capturar animações (html2canvas)
 function gerarCard(elementId) {
     const elemento = document.getElementById(elementId);
     
-    // Adiciona uma marca d'água temporária para a foto
+    // Adiciona a marca d'água temporária para a foto
     const marcaAgua = document.createElement('div');
-    marcaAgua.innerHTML = "<br><span style='font-family: Inter; font-size: 0.8rem; color: rgba(255,255,255,0.4);'>Gerado no Chat Bíblico Imersivo</span>";
+    marcaAgua.className = 'marca-agua-card'; // Classe para estilizar, se quiser
+    marcaAgua.innerHTML = "<br><span style='font-family: Inter, sans-serif; font-size: 0.8rem; color: rgba(232, 211, 162, 0.5); font-weight: 300;'>Gerado no Chat Bíblico Imersivo</span>";
     elemento.appendChild(marcaAgua);
 
+    // O PULO DO GATO: Configurações do html2canvas com onclone
     html2canvas(elemento, {
-        backgroundColor: '#050505', // Mantém o fundo dark
-        scale: 2 // Aumenta a resolução para o Instagram
+        backgroundColor: '#050505', // Fundo dark
+        scale: 2, // Resolução pro Insta
+        logging: false, // Menos ruído no console
+        useCORS: true, // Importante para garantir carregamento de fontes
+        
+        // Esta função roda em um clone do DOM antes de tirar a foto
+        onclone: function(clonedDocument) {
+            // No clone, procuramos todas as palavras que estão com a classe de animação
+            const palavrasNoClone = clonedDocument.getElementById(elementId).querySelectorAll('.word-reveal');
+            
+            // Forçamos todas elas a terem opacidade 1, anulando qualquer delay ou animação
+            palavrasNoClone.forEach(span => {
+                span.style.opacity = '1';
+                span.style.transform = 'translateY(0)'; // Garante que estejam no lugar certo
+            });
+            
+            console.log('DOM clonado e preparado com o conteúdo visível.');
+        }
     }).then(canvas => {
-        // Remove a marca d'água da tela do chat
+        // Remove a marca d'água da tela do chat original
         elemento.removeChild(marcaAgua);
         
         // Dispara o download da imagem
