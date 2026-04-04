@@ -145,35 +145,44 @@ function addBibleResponse(text) {
     scrollToBottom();
 }
 
-// Função Mágica Atualizada para capturar animações (html2canvas)
+// Função Mágica DEFINITIVA para capturar animações (html2canvas)
 function gerarCard(elementId) {
     const elemento = document.getElementById(elementId);
     
     // Adiciona a marca d'água temporária para a foto
     const marcaAgua = document.createElement('div');
-    marcaAgua.className = 'marca-agua-card'; // Classe para estilizar, se quiser
-    marcaAgua.innerHTML = "<br><span style='font-family: Inter, sans-serif; font-size: 0.8rem; color: rgba(232, 211, 162, 0.5); font-weight: 300;'>Gerado no Chat Bíblico Imersivo</span>";
+    marcaAgua.style.cssText = "font-family: Inter, sans-serif; font-size: 0.8rem; color: rgba(232, 211, 162, 0.5); font-weight: 300; margin-top: 15px; text-align: center;";
+    marcaAgua.innerHTML = "Gerado no Chat Bíblico Imersivo";
     elemento.appendChild(marcaAgua);
 
-    // O PULO DO GATO: Configurações do html2canvas com onclone
+    // Configurações do html2canvas focadas em desativar a animação
     html2canvas(elemento, {
         backgroundColor: '#050505', // Fundo dark
-        scale: 2, // Resolução pro Insta
-        logging: false, // Menos ruído no console
-        useCORS: true, // Importante para garantir carregamento de fontes
+        scale: 2, // Alta resolução
+        logging: false, 
+        useCORS: true, 
         
-        // Esta função roda em um clone do DOM antes de tirar a foto
+        // A SOLUÇÃO ESTÁ AQUI: No processamento do clone
         onclone: function(clonedDocument) {
-            // No clone, procuramos todas as palavras que estão com a classe de animação
-            const palavrasNoClone = clonedDocument.getElementById(elementId).querySelectorAll('.word-reveal');
+            // Localiza o elemento clonado específico
+            const elementoNoClone = clonedDocument.getElementById(elementId);
             
-            // Forçamos todas elas a terem opacidade 1, anulando qualquer delay ou animação
+            // Encontra todas as palavras que teriam a animação
+            const palavrasNoClone = elementoNoClone.querySelectorAll('.word-reveal');
+            
+            // Força a desativação da animação e a visibilidade total
             palavrasNoClone.forEach(span => {
+                // Removemos qualquer animação ativa usando !important
+                span.style.setProperty('animation', 'none', 'important');
+                span.style.setProperty('-webkit-animation', 'none', 'important'); // Segurança para Safari
+                
+                // Forçamos o estado final da animação (visível e no lugar)
                 span.style.opacity = '1';
-                span.style.transform = 'translateY(0)'; // Garante que estejam no lugar certo
+                span.style.transform = 'translateY(0)';
+                span.style.visibility = 'visible'; // Garante que não esteja hidden
             });
             
-            console.log('DOM clonado e preparado com o conteúdo visível.');
+            console.log('DOM clonado: Animações CSS desativadas à força no card.');
         }
     }).then(canvas => {
         // Remove a marca d'água da tela do chat original
@@ -184,5 +193,9 @@ function gerarCard(elementId) {
         link.download = 'conselho_biblico.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
+    }).catch(err => {
+        console.error('Erro ao gerar card:', err);
+        // Garante a remoção da marca d'água mesmo em caso de erro
+        if (elemento.contains(marcaAgua)) elemento.removeChild(marcaAgua);
     });
 }
