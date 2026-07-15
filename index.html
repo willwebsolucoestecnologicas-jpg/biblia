@@ -6,18 +6,18 @@
     <title>Chat Bíblico Imersivo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-    }
-</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker não registrado', err));
+        }
+    </script>
 </head>
 <body>
 
     <div class="ambient-glow"></div>
 
     <div id="chat-timeline">
-        <div class="message-block">
+        <div class="message-block bot-block">
             <div class="bible-msg">"E conhecereis a verdade, e a verdade vos libertará."</div>
             <div class="user-msg" style="margin-top: 10px; font-size: 0.9rem;">O que busca em seu coração hoje?</div>
         </div>
@@ -25,12 +25,15 @@
 
     <div id="input-container">
         <input type="text" id="user-input" placeholder="Fale comigo..." autocomplete="off">
-        <button id="send-btn">Enviar</button>
+        <button id="send-btn" aria-label="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <script src="script.js" defer></script>
-    <div id="share-card-container" style="display: none;">
+    <div id="share-card-container">
         <div id="share-card">
             <div class="card-header">
                 <span class="app-logo-text">Chat Bíblico Imersivo</span>
