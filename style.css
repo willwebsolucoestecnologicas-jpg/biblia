@@ -5,11 +5,24 @@
     box-sizing: border-box;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500&display=swap');
+
+/* VARIÁVEIS DE CORES PREMIUM */
+:root {
+    --bg-dark: #07090F; /* Azul profundo quase preto */
+    --gold-primary: #D4AF37; /* Ouro premium */
+    --gold-light: #F4E8C1; /* Ouro claro */
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --glass-bg: rgba(20, 25, 35, 0.6);
+    --glass-border: rgba(212, 175, 55, 0.15);
+}
 
 /* FUNDO DINÂMICO E ESCURO */
 body {
-    background-color: #050505;
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(20, 30, 50, 0.8) 0%, transparent 50%);
     color: #ffffff;
     font-family: 'Inter', sans-serif;
     height: 100vh;
@@ -42,45 +55,67 @@ body {
 #chat-timeline {
     flex: 1;
     width: 100%;
-    max-width: 800px;
+    max-width: 850px;
     margin: 0 auto;
-    padding: 40px 20px 120px 20px;
+    padding: 60px 20px 140px 20px;
     overflow-y: auto;
     z-index: 1;
     scroll-behavior: smooth;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 50px;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 90%, transparent 100%);
 }
 
-/* OCULTAR SCROLLBAR PARA FICAR CLEAN */
 #chat-timeline::-webkit-scrollbar {
-    display: none;
+    width: 6px;
+}
+#chat-timeline::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
 }
 
-/* ESTILOS DAS MENSAGENS (SEM BALÕES) */
+/* ESTILOS DAS MENSAGENS */
 .message-block {
     width: 100%;
-    text-align: center;
     opacity: 0;
-    transform: translateY(20px);
-    animation: slideUpFade 0.8s forwards ease-out;
+    transform: translateY(15px);
+    animation: slideUpFade 0.6s forwards ease-out;
+    position: relative;
 }
+
+.user-block { text-align: center; }
+.bot-block { text-align: center; }
+.loading-msg { text-align: center; }
 
 .user-msg {
     font-family: 'Inter', sans-serif;
-    font-weight: 300;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 10px;
+    font-weight: 400;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
 }
 
 .bible-msg {
-    font-family: 'Cinzel', serif; /* Fonte clássica e elegante */
-    font-size: 1.5rem;
-    line-height: 1.6;
-    color: #E8D3A2; /* Tom de ouro envelhecido/pergaminho */
-    text-shadow: 0px 0px 15px rgba(232, 211, 162, 0.2);
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: 1.7rem;
+    line-height: 1.7;
+    color: var(--gold-light);
+    text-shadow: 0px 4px 20px rgba(212, 175, 55, 0.15);
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.bot-block::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--glass-border);
+    margin: 40px auto 0 auto;
 }
 
 @keyframes slideUpFade {
@@ -90,35 +125,39 @@ body {
 /* EFEITO DE PALAVRAS SURGINDO */
 .word-reveal {
     opacity: 0;
-    animation: fadeInWord 0.5s forwards ease-in-out;
+    display: inline-block;
+    animation: fadeInWord 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes fadeInWord {
-    to { opacity: 1; text-shadow: 0px 0px 10px rgba(232, 211, 162, 0.5); }
+    0% { opacity: 0; transform: translateY(5px); filter: blur(2px); text-shadow: none; }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); text-shadow: 0px 0px 10px rgba(232, 211, 162, 0.3); }
 }
 
-/* ÁREA DE DIGITAÇÃO MINIMALISTA */
+/* ÁREA DE DIGITAÇÃO GLASSMORPHISM */
 #input-container {
     position: absolute;
     bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     z-index: 2;
-    background: rgba(20, 20, 20, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 60px;
     display: flex;
-    padding: 10px 20px;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
+    align-items: center;
+    padding: 8px 12px 8px 24px;
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.05);
+    transition: all 0.4s ease;
 }
 
 #input-container:focus-within {
-    border-color: rgba(232, 211, 162, 0.5);
-    box-shadow: 0px 0px 20px rgba(232, 211, 162, 0.1);
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.6), 0px 0px 20px rgba(212, 175, 55, 0.1);
 }
 
 #user-input {
@@ -127,88 +166,47 @@ body {
     border: none;
     color: #fff;
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 1.05rem;
     outline: none;
+    padding: 10px 0;
 }
 
-#user-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-}
+#user-input::placeholder { color: var(--text-muted); font-weight: 300; }
 
 #send-btn {
-    background: transparent;
-    border: none;
-    color: #E8D3A2;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.9rem;
-    transition: opacity 0.3s ease;
-}
-
-#send-btn:hover {
-    opacity: 0.8;
-}
-
-/* ... (seus estilos existentes) ... */
-
-/* ESTILOS PARA O CARD DE COMPARTILHAMENTO */
-#share-card-container {
-    position: fixed;
-    top: -2000px; /* Esconde bem longe da tela */
-    left: -2000px;
-    z-index: -1000;
-}
-
-#share-card {
-    width: 1080px; /* Largura padrão para Instagram */
-    height: 1350px; /* Altura para aspecto 4:5 */
-    background-color: #050505; /* Fundo do tema */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 100px; /* Margens internas generosas */
-    border: 2px solid rgba(232, 211, 162, 0.3); /* Borda dourada sutil */
-    box-shadow: 0 0 50px rgba(232, 211, 162, 0.1); /* Brilho sutil */
-}
-
-#share-card .card-header {
-    text-align: center;
-}
-
-#share-card .app-logo-text {
-    font-family: 'Cinzel', serif;
-    color: #E8D3A2;
-    font-size: 2rem;
-    letter-spacing: 2px;
-}
-
-#share-card .bible-msg {
-    flex: 1; /* Preenche o espaço central */
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    font-size: 3rem; /* Fonte maior para o card */
-    margin: 60px 0;
-    line-height: 1.4;
+    color: var(--gold-primary);
+    cursor: pointer;
+    margin-left: 15px;
+    transition: all 0.3s ease;
 }
 
-#share-card .card-footer {
-    text-align: center;
-    font-family: 'Inter', sans-serif;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 1.2rem;
+#send-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
 }
 
-/* ESTILO PARA O BOTÃO DE COMPARTILHAMENTO NO CHAT */
+#send-btn:hover {
+    background: var(--gold-primary);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+#send-btn:hover svg { transform: translate(2px, -2px); }
+
+/* BOTÃO DE COMPARTILHAMENTO */
 .share-btn {
     background: transparent;
-    border: 1px solid rgba(232, 211, 162, 0.3);
-    color: rgba(232, 211, 162, 0.6);
+    border: 1px solid var(--glass-border);
+    color: rgba(212, 175, 55, 0.6);
     padding: 8px 16px;
     border-radius: 20px;
     font-family: 'Inter', sans-serif;
@@ -216,12 +214,60 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    margin-top: 15px;
+    margin-top: 25px;
     transition: all 0.3s ease;
+    display: inline-block;
 }
 
 .share-btn:hover {
-    border-color: #E8D3A2;
-    color: #E8D3A2;
-    box-shadow: 0 0 10px rgba(232, 211, 162, 0.2);
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+/* CARD DE COMPARTILHAMENTO OCULTO */
+#share-card-container {
+    position: fixed;
+    top: -2000px;
+    left: -2000px;
+    z-index: -1000;
+}
+
+#share-card {
+    width: 1080px;
+    height: 1350px;
+    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 120px;
+    border: 2px solid var(--glass-border);
+}
+
+#share-card .app-logo-text {
+    font-family: 'Cinzel', serif;
+    color: var(--gold-primary);
+    font-size: 2.2rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+#share-card .bible-msg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 3.5rem;
+    margin: 60px 0;
+    line-height: 1.5;
+    color: var(--gold-light);
+}
+
+#share-card .card-footer {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
 }
