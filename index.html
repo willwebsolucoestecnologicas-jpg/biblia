@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chat Bíblico Imersivo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker não registrado', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW não registrado', err));
         }
     </script>
 </head>
@@ -23,14 +23,16 @@
         </div>
     </div>
 
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Fale comigo..." autocomplete="off">
-        <button id="send-btn" aria-label="Enviar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-        </button>
+    <div class="input-section">
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Fale comigo..." autocomplete="off">
+            <button id="send-btn" aria-label="Enviar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <div id="share-card-container">
@@ -38,8 +40,7 @@
             <div class="card-header">
                 <span class="app-logo-text">Chat Bíblico Imersivo</span>
             </div>
-            <div id="card-content" class="bible-msg">
-                </div>
+            <div id="card-content" class="bible-msg"></div>
             <div class="card-footer">
                 <span>"E conhecereis a verdade..."</span>
             </div>
