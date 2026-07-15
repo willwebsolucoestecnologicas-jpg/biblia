@@ -25,7 +25,8 @@ body {
         radial-gradient(circle at 50% 100%, rgba(20, 30, 50, 0.8) 0%, transparent 50%);
     color: #ffffff;
     font-family: 'Inter', sans-serif;
-    height: 100vh;
+    height: 100dvh; /* dvh corrige o bug da barra do navegador no mobile */
+    min-height: 100vh; /* Fallback para navegadores antigos */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -137,7 +138,7 @@ body {
 /* ÁREA DE DIGITAÇÃO GLASSMORPHISM */
 #input-container {
     position: absolute;
-    bottom: 40px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -270,4 +271,36 @@ body {
     font-family: 'Inter', sans-serif;
     color: rgba(255, 255, 255, 0.4);
     font-size: 1.5rem;
+}
+
+/* RESPONSIVIDADE PARA DISPOSITIVOS MÓVEIS */
+@media (max-width: 600px) {
+    #chat-timeline {
+        padding: 30px 15px 100px 15px; 
+        gap: 30px; 
+    }
+
+    .bible-msg {
+        font-size: 1.3rem; 
+        line-height: 1.5;
+    }
+
+    .user-msg {
+        font-size: 1rem;
+    }
+
+    #input-container {
+        width: 92%;
+        bottom: 15px;
+        padding: 6px 8px 6px 18px;
+    }
+
+    #user-input {
+        font-size: 0.95rem;
+    }
+
+    #send-btn {
+        width: 40px;
+        height: 40px;
+    }
 }
