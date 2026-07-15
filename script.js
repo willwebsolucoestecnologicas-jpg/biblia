@@ -2,10 +2,10 @@ const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const timeline = document.getElementById('chat-timeline');
 
-// Substitua pelo URL do seu Web App real do Google Apps Script
+// URL do seu Web App real do Google Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbyopLIiJtMWObtOaQoZlvqkBc9BmDjRuqLyNxUaU8rRvUOP4KLtq5G3jZvUiz5BTr1fGw/exec';
 
-// Nova função de scroll que foca no TOPO do elemento especificado
+// Função de scroll que foca no TOPO do elemento especificado
 function scrollToElement(element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -42,7 +42,6 @@ function removeLoading() {
 
 // 4. Lida com a resposta do Bot e o efeito de digitação
 function typeBotMessage(text) {
-    // Cria o bloco da mensagem
     const block = document.createElement('div');
     block.className = 'message-block bot-block';
     
@@ -52,33 +51,33 @@ function typeBotMessage(text) {
     
     timeline.appendChild(block);
     
-    // IMPORTANTE: Foca a tela no início deste bloco ANTES de começar a digitar.
-    // Assim o usuário lê de cima para baixo sem perder o foco.
+    // Foca a tela no início deste bloco ANTES de começar a digitar
     scrollToElement(block);
 
-    // Efeito de digitação revelando palavra por palavra
     const words = text.split(' ');
     let i = 0;
 
     function typeWord() {
         if (i < words.length) {
+            // Cria o span apenas para a palavra
             const span = document.createElement('span');
-            span.textContent = words[i] + ' ';
+            span.textContent = words[i]; 
             span.className = 'word-reveal';
-            
-            // Um leve atraso na animação para dar fluidez
             span.style.animationDelay = '0.1s'; 
             
             textContainer.appendChild(span);
+
+            // Adiciona um espaço real no HTML após a palavra
+            const space = document.createTextNode(' ');
+            textContainer.appendChild(space);
+
             i++;
-            setTimeout(typeWord, 150); // Velocidade da digitação (150ms por palavra)
+            setTimeout(typeWord, 100); // Velocidade de digitação (100ms por palavra)
         } else {
-            // Quando terminar de digitar, adiciona o botão de compartilhar
             addShareButton(block, text);
         }
     }
     
-    // Inicia a digitação
     setTimeout(typeWord, 300);
 }
 
@@ -91,12 +90,11 @@ function addShareButton(container, text) {
     container.appendChild(shareBtn);
 }
 
-// 6. Lógica de envio (Conecta todas as funções)
+// 6. Lógica de envio com a chamada REAL da API
 async function handleSend() {
     const text = inputField.value.trim();
     if (!text) return;
 
-    // Limpa o input e desabilita enquanto processa
     inputField.value = '';
     inputField.disabled = true;
     sendBtn.disabled = true;
@@ -105,16 +103,17 @@ async function handleSend() {
     showLoading();
 
     try {
-        // AQUI VOCÊ FAZ SUA CHAMADA REAL PARA A API:
-        // const response = await fetch(`${API_URL}?pergunta=${encodeURIComponent(text)}`);
-        // const data = await response.json();
-        // const respostaBot = data.resposta;
+        // Chamada real para o Google Apps Script
+        const response = await fetch(`${API_URL}?pergunta=${encodeURIComponent(text)}`);
         
-        // Simulação de espera de rede (remover quando integrar a API real)
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (!response.ok) {
+            throw new Error('Falha na rede');
+        }
+
+        const data = await response.json();
         
-        // Simulação de resposta (remover quando integrar a API real)
-        const respostaBot = `"O Senhor é a minha luz e a minha salvação; a quem temerei? O Senhor é a força da minha vida; de quem me recearei?" (Salmos 27:1)`;
+        // Extrai a resposta considerando formatos comuns do Apps Script
+        const respostaBot = data.resposta || data.mensagem || data || "Não encontrei uma resposta.";
         
         removeLoading();
         typeBotMessage(respostaBot);
@@ -151,10 +150,9 @@ function shareVersicle(text) {
     // Gera a imagem
     html2canvas(card, {
         scale: 2, 
-        backgroundColor: '#07090F', // Garante o fundo escuro na imagem
+        backgroundColor: '#07090F', // Fundo escuro na imagem
         logging: false
     }).then(canvas => {
-        // Converte para imagem e faz o download
         const link = document.createElement('a');
         link.download = 'versiculo.png';
         link.href = canvas.toDataURL('image/png');
