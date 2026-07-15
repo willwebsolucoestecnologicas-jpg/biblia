@@ -2,257 +2,162 @@ const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const timeline = document.getElementById('chat-timeline');
 
-// O URL do seu Web App gerado no Google Apps Script
+// Substitua pelo URL do seu Web App real do Google Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbyopLIiJtMWObtOaQoZlvqkBc9BmDjRuqLyNxUaU8rRvUOP4KLtq5G3jZvUiz5BTr1fGw/exec';
 
-// Adiciona a mensagem do usuário
-function addUserMessage(text) {
-    const block = document.createElement('div');
-    block.className = 'message-block';
-    block.innerHTML = `<div class="user-msg">${text}</div>`;
-    timeline.appendChild(block);
-    scrollToBottom();
+// Nova função de scroll que foca no TOPO do elemento especificado
+function scrollToElement(element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Adiciona o indicador de carregamento
+// 1. Adiciona a mensagem do usuário
+function addUserMessage(text) {
+    const block = document.createElement('div');
+    block.className = 'message-block user-block';
+    block.innerHTML = `<div class="user-msg">${text}</div>`;
+    timeline.appendChild(block);
+    
+    // Foca na mensagem enviada
+    scrollToElement(block);
+}
+
+// 2. Adiciona o indicador de carregamento
 function showLoading() {
     const block = document.createElement('div');
     block.className = 'message-block loading-msg';
     block.id = 'loading-indicator';
-    block.innerHTML = `<div class="bible-msg" style="font-size: 1.1rem; opacity: 0.5;">Buscando nas escrituras...</div>`;
+    block.innerHTML = `<div class="bible-msg" style="font-size: 1.1rem; opacity: 0.5;">Consultando as escrituras...</div>`;
     timeline.appendChild(block);
-    scrollToBottom();
+    
+    scrollToElement(block);
 }
 
-// Remove o indicador de carregamento
-function hideLoading() {
-    const loading = document.getElementById('loading-indicator');
-    if (loading) {
-        loading.remove();
+// 3. Remove o indicador de carregamento
+function removeLoading() {
+    const loadingBlock = document.getElementById('loading-indicator');
+    if (loadingBlock) {
+        loadingBlock.remove();
     }
 }
 
-// Simula a resposta da Bíblia com efeito de revelação
-// ... (seu código existente: inputField, sendBtn, etc.) ...
-
-// Função para adicionar a mensagem da IA com o botão de compartilhamento
-function addBibleResponse(text) {
+// 4. Lida com a resposta do Bot e o efeito de digitação
+function typeBotMessage(text) {
+    // Cria o bloco da mensagem
     const block = document.createElement('div');
-    block.className = 'message-block';
+    block.className = 'message-block bot-block';
     
-    // Conteúdo da mensagem com ID único
     const textContainer = document.createElement('div');
     textContainer.className = 'bible-msg';
-    const msgId = 'msg-' + Date.now(); // Gera um ID único com base no tempo
-    textContainer.id = msgId;
     block.appendChild(textContainer);
+    
+    timeline.appendChild(block);
+    
+    // IMPORTANTE: Foca a tela no início deste bloco ANTES de começar a digitar.
+    // Assim o usuário lê de cima para baixo sem perder o foco.
+    scrollToElement(block);
 
-    // Cria o botão de compartilhamento sutil
+    // Efeito de digitação revelando palavra por palavra
+    const words = text.split(' ');
+    let i = 0;
+
+    function typeWord() {
+        if (i < words.length) {
+            const span = document.createElement('span');
+            span.textContent = words[i] + ' ';
+            span.className = 'word-reveal';
+            
+            // Um leve atraso na animação para dar fluidez
+            span.style.animationDelay = '0.1s'; 
+            
+            textContainer.appendChild(span);
+            i++;
+            setTimeout(typeWord, 150); // Velocidade da digitação (150ms por palavra)
+        } else {
+            // Quando terminar de digitar, adiciona o botão de compartilhar
+            addShareButton(block, text);
+        }
+    }
+    
+    // Inicia a digitação
+    setTimeout(typeWord, 300);
+}
+
+// 5. Adiciona o botão de compartilhar no final da mensagem do Bot
+function addShareButton(container, text) {
     const shareBtn = document.createElement('button');
     shareBtn.className = 'share-btn';
-    shareBtn.textContent = 'Compartilhar';
-    // Define a ação do botão, passando o ID da mensagem para a função
-    shareBtn.onclick = function() {
-        compartilharMensagem(msgId);
-    };
-    block.appendChild(shareBtn);
-
-    timeline.appendChild(block);
-
-    // Divide o texto em palavras para animar uma a uma (mantendo sua animação)
-    const words = text.split(' ');
-    textContainer.innerHTML = ''; 
-
-    words.forEach((word, index) => {
-        const span = document.createElement('span');
-        span.textContent = word + ' ';
-        span.className = 'word-reveal';
-        // Atraso escalonado para cada palavra
-        span.style.animationDelay = `${index * 0.15}s`; 
-        textContainer.appendChild(span);
-    });
-
-    scrollToBottom();
+    shareBtn.textContent = 'Compartilhar Versículo';
+    shareBtn.onclick = () => shareVersicle(text);
+    container.appendChild(shareBtn);
 }
 
-// NOVA FUNÇÃO MÁGICA: Lógica para popular e capturar o card formatado
-function compartilharMensagem(messageId) {
-    const originalMessageElement = document.getElementById(messageId);
-    if (!originalMessageElement) return;
-
-    // 1. Pega o texto limpo da mensagem (sem as spans de animação)
-    const textToShare = originalMessageElement.textContent;
-
-    // 2. Popula o Card de Compartilhamento oculto com este texto
-    const cardContentElement = document.getElementById('card-content');
-    cardContentElement.textContent = textToShare;
-
-    // 3. Torna o card visível temporariamente para a captura
-    const cardContainer = document.getElementById('share-card-container');
-    const cardElement = document.getElementById('share-card');
-    cardContainer.style.display = 'block';
-
-    // 4. Usa o html2canvas para capturar APENAS o card
-    html2canvas(cardElement, {
-        scale: 1, // Capture na escala 1:1 do elemento, que já é alta (1080px)
-        backgroundColor: '#050505', // Garante o fundo preto do tema
-        logging: false, // Desativa logs no console
-    }).then(canvas => {
-        // 5. Esconde o card novamente
-        cardContainer.style.display = 'none';
-
-        // 6. Converte o canvas para imagem (dataURL)
-        const imgData = canvas.toDataURL('image/png');
-
-        // 7. Dispara o download da imagem final
-        const link = document.createElement('a');
-        link.download = 'conselho-biblico.png';
-        link.href = imgData;
-        link.click();
-    });
-}
-
-// ... (resto do seu código: scrollToBottom, handleSend, etc.) ...
-
-function scrollToBottom() {
-    timeline.scrollTo({
-        top: timeline.scrollHeight,
-        behavior: 'smooth'
-    });
-}
-
-// Comunicação Real com sua API (Apps Script)
-// Recupera o histórico salvo ou cria um novo array vazio
-let chatHistory = JSON.parse(localStorage.getItem('biblia_history')) || [];
-
+// 6. Lógica de envio (Conecta todas as funções)
 async function handleSend() {
     const text = inputField.value.trim();
     if (!text) return;
 
-    addUserMessage(text);
+    // Limpa o input e desabilita enquanto processa
     inputField.value = '';
+    inputField.disabled = true;
+    sendBtn.disabled = true;
 
-    if (!API_URL.includes("script.google.com")) {
-        addBibleResponse("Atenção: O link da API_URL parece incorreto.");
-        return;
-    }
-
+    addUserMessage(text);
     showLoading();
 
-    // Salva a mensagem do usuário no histórico (mantendo as últimas 6 mensagens para não pesar)
-    chatHistory.push({ role: 'user', content: text });
-    if (chatHistory.length > 6) chatHistory = chatHistory.slice(chatHistory.length - 6);
-
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            // Enviamos o histórico junto com a mensagem atual!
-            body: JSON.stringify({ mensagem: text, historico: chatHistory }) 
-        });
-
-        const data = await response.json();
-        hideLoading();
-
-        if (data.resposta) {
-            addBibleResponse(data.resposta);
-            // Salva a resposta da IA no histórico
-            chatHistory.push({ role: 'ia', content: data.resposta });
-            localStorage.setItem('biblia_history', JSON.stringify(chatHistory));
-        } else if (data.erro) {
-            addBibleResponse("Sinto muito, houve uma perturbação no caminho: " + data.erro);
-        }
+        // AQUI VOCÊ FAZ SUA CHAMADA REAL PARA A API:
+        // const response = await fetch(`${API_URL}?pergunta=${encodeURIComponent(text)}`);
+        // const data = await response.json();
+        // const respostaBot = data.resposta;
+        
+        // Simulação de espera de rede (remover quando integrar a API real)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Simulação de resposta (remover quando integrar a API real)
+        const respostaBot = `"O Senhor é a minha luz e a minha salvação; a quem temerei? O Senhor é a força da minha vida; de quem me recearei?" (Salmos 27:1)`;
+        
+        removeLoading();
+        typeBotMessage(respostaBot);
 
     } catch (error) {
-        hideLoading();
-        addBibleResponse("A paz esteja com você. No momento, não consegui me conectar.");
+        removeLoading();
+        typeBotMessage("Perdoe-me, houve um erro ao buscar a sabedoria. Tente novamente.");
+        console.error("Erro na API:", error);
+    } finally {
+        inputField.disabled = false;
+        sendBtn.disabled = false;
+        inputField.focus();
     }
 }
+
+// 7. Eventos de clique e tecla Enter
 sendBtn.addEventListener('click', handleSend);
-inputField.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSend();
+inputField.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        handleSend();
+    }
 });
 
-// Atualize sua função addBibleResponse para incluir o botão de compartilhar
-function addBibleResponse(text) {
-    const block = document.createElement('div');
-    block.className = 'message-block';
-    // Colocamos um ID único para o canvas conseguir capturar
-    const msgId = 'msg-' + Date.now(); 
+// 8. Lógica do HTML2Canvas para gerar a imagem
+function shareVersicle(text) {
+    const cardContainer = document.getElementById('share-card-container');
+    const cardContent = document.getElementById('card-content');
     
-    block.innerHTML = `
-        <div class="bible-msg" id="${msgId}" style="padding: 20px; border-radius: 10px;"></div>
-        <button onclick="gerarCard('${msgId}')" style="background: transparent; border: 1px solid #E8D3A2; color: #E8D3A2; padding: 5px 15px; border-radius: 20px; cursor: pointer; margin-top: 15px; font-family: 'Inter'; font-size: 0.8rem;">
-            Compartilhar no Instagram
-        </button>
-    `;
-    timeline.appendChild(block);
-
-    const textContainer = block.querySelector('.bible-msg');
-    const words = text.split(' ');
+    // Coloca o texto no card escondido
+    cardContent.textContent = text;
     
-    words.forEach((word, index) => {
-        const span = document.createElement('span');
-        span.textContent = word + ' ';
-        span.className = 'word-reveal';
-        span.style.animationDelay = `${index * 0.15}s`; 
-        textContainer.appendChild(span);
-    });
+    const card = document.getElementById('share-card');
 
-    scrollToBottom();
-}
-
-// Função Mágica DEFINITIVA para capturar animações (html2canvas)
-function gerarCard(elementId) {
-    const elemento = document.getElementById(elementId);
-    
-    // Adiciona a marca d'água temporária para a foto
-    const marcaAgua = document.createElement('div');
-    marcaAgua.style.cssText = "font-family: Inter, sans-serif; font-size: 0.8rem; color: rgba(232, 211, 162, 0.5); font-weight: 300; margin-top: 15px; text-align: center;";
-    marcaAgua.innerHTML = "Gerado no Chat Bíblico Imersivo";
-    elemento.appendChild(marcaAgua);
-
-    // Configurações do html2canvas focadas em desativar a animação
-    html2canvas(elemento, {
-        backgroundColor: '#050505', // Fundo dark
-        scale: 2, // Alta resolução
-        logging: false, 
-        useCORS: true, 
-        
-        // A SOLUÇÃO ESTÁ AQUI: No processamento do clone
-        onclone: function(clonedDocument) {
-            // Localiza o elemento clonado específico
-            const elementoNoClone = clonedDocument.getElementById(elementId);
-            
-            // Encontra todas as palavras que teriam a animação
-            const palavrasNoClone = elementoNoClone.querySelectorAll('.word-reveal');
-            
-            // Força a desativação da animação e a visibilidade total
-            palavrasNoClone.forEach(span => {
-                // Removemos qualquer animação ativa usando !important
-                span.style.setProperty('animation', 'none', 'important');
-                span.style.setProperty('-webkit-animation', 'none', 'important'); // Segurança para Safari
-                
-                // Forçamos o estado final da animação (visível e no lugar)
-                span.style.opacity = '1';
-                span.style.transform = 'translateY(0)';
-                span.style.visibility = 'visible'; // Garante que não esteja hidden
-            });
-            
-            console.log('DOM clonado: Animações CSS desativadas à força no card.');
-        }
+    // Gera a imagem
+    html2canvas(card, {
+        scale: 2, 
+        backgroundColor: '#07090F', // Garante o fundo escuro na imagem
+        logging: false
     }).then(canvas => {
-        // Remove a marca d'água da tela do chat original
-        elemento.removeChild(marcaAgua);
-        
-        // Dispara o download da imagem
+        // Converte para imagem e faz o download
         const link = document.createElement('a');
-        link.download = 'conselho_biblico.png';
+        link.download = 'versiculo.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
-    }).catch(err => {
-        console.error('Erro ao gerar card:', err);
-        // Garante a remoção da marca d'água mesmo em caso de erro
-        if (elemento.contains(marcaAgua)) elemento.removeChild(marcaAgua);
     });
 }
