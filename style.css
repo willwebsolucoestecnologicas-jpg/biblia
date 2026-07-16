@@ -1,218 +1,431 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ============================================
+   TOKENS
+   ============================================ */
+:root {
+  --bg: #0a0906;
+  --bg-deep: #060504;
+  --ink: #f2ead9;
+  --ink-muted: rgba(242, 234, 217, 0.52);
+  --ink-faint: rgba(242, 234, 217, 0.28);
+  --gold: #c9a860;
+  --gold-bright: #f0d99e;
+  --gold-dim: rgba(201, 168, 96, 0.16);
+  --divider: rgba(201, 168, 96, 0.22);
+  --surface: rgba(255, 248, 235, 0.028);
+  --font-display: 'Cormorant Garamond', serif;
+  --font-eyebrow: 'Cinzel', serif;
+  --font-ui: 'Inter', sans-serif;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500&display=swap');
+/* ============================================
+   RESET
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-:root {
-    --bg-dark: #07090F; 
-    --gold-primary: #D4AF37; 
-    --gold-light: #F4E8C1; 
-    --text-muted: rgba(255, 255, 255, 0.5);
-    --glass-bg: rgba(20, 25, 35, 0.6);
-    --glass-border: rgba(212, 175, 55, 0.15);
+html, body {
+  height: 100%;
 }
 
 body {
-    background-color: var(--bg-dark);
-    background-image: 
-        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(20, 30, 50, 0.8) 0%, transparent 50%);
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
-    
-    /* Layout Flex resolve o problema de corte no Android/iOS */
-    height: 100dvh; 
-    min-height: 100vh; 
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
+/* ============================================
+   ATMOSPHERE
+   ============================================ */
 .ambient-glow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80vw;
-    height: 80vh;
-    background: radial-gradient(circle, rgba(25, 40, 70, 0.4) 0%, rgba(5, 5, 5, 0) 70%);
-    z-index: 0;
-    animation: breathe 8s infinite alternate ease-in-out;
-    pointer-events: none;
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  height: 70vh;
+  background: radial-gradient(circle, rgba(201, 168, 96, 0.10) 0%, rgba(10, 9, 6, 0) 68%);
+  z-index: 0;
+  animation: breathe 9s infinite alternate ease-in-out;
+  pointer-events: none;
 }
 
 @keyframes breathe {
-    0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
-    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  0%   { opacity: 0.55; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
 }
 
+/* faint film-grain texture keeps the dark background from looking flat/digital */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.app-header {
+  z-index: 2;
+  text-align: center;
+  padding: 22px 20px 14px;
+}
+
+.app-brand {
+  font-family: var(--font-eyebrow);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.app-brand em {
+  font-style: normal;
+  color: var(--gold);
+}
+
+/* ============================================
+   TIMELINE
+   ============================================ */
 #chat-timeline {
-    flex: 1; /* Faz o chat preencher todo o espaço disponível */
-    width: 100%;
-    max-width: 850px;
-    margin: 0 auto;
-    padding: 60px 20px 40px 20px;
-    overflow-y: auto;
-    z-index: 1;
-    scroll-behavior: smooth;
-    display: flex;
-    flex-direction: column;
-    gap: 50px;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+  flex: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 10px 24px 150px;
+  overflow-y: auto;
+  z-index: 1;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
 }
 
-#chat-timeline::-webkit-scrollbar { width: 6px; }
-#chat-timeline::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.2); border-radius: 10px; }
-
-.message-block {
-    width: 100%;
-    opacity: 0;
-    transform: translateY(15px);
-    animation: slideUpFade 0.6s forwards ease-out;
-    position: relative;
+#chat-timeline::-webkit-scrollbar {
+  width: 4px;
+}
+#chat-timeline::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 96, 0.18);
+  border-radius: 4px;
+}
+#chat-timeline::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.user-block, .bot-block, .loading-msg { text-align: center; }
+/* Each Q/A pair. scroll-margin-top gives scrollIntoView breathing room
+   so the new message doesn't land flush against the header. */
+.exchange {
+  width: 100%;
+  scroll-margin-top: 28px;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: riseIn 0.7s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
 
+@keyframes riseIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.exchange.intro {
+  text-align: center;
+  padding-top: 24px;
+}
+
+.exchange.intro .bible-msg {
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+}
+
+.prompt-msg {
+  margin-top: 14px;
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: 0.95rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.01em;
+}
+
+/* the user's question: quiet, small, set above a hairline like a
+   manuscript rubric introducing the passage that follows */
 .user-msg {
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
-    font-size: 1.05rem;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-    margin-bottom: 15px;
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
+.user-msg::after {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin: 20px auto 0;
+  background: var(--divider);
+}
+
+/* the response */
 .bible-msg {
-    font-family: 'Cinzel', serif;
-    font-weight: 500;
-    font-size: 1.7rem;
-    line-height: 1.7;
-    color: var(--gold-light);
-    text-shadow: 0px 4px 20px rgba(212, 175, 55, 0.15);
-    max-width: 90%;
-    margin: 0 auto;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.4vw, 1.65rem);
+  line-height: 1.75;
+  color: var(--ink);
+  text-align: center;
+  max-width: 560px;
+  margin: 26px auto 0;
 }
 
-.bot-block::after {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 1px;
-    background: var(--glass-border);
-    margin: 40px auto 0 auto;
+.bible-msg.is-loading {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
-@keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+/* signature element: illuminated drop cap opening the response,
+   evoking an illuminated-manuscript initial */
+.drop-cap {
+  font-family: var(--font-eyebrow);
+  font-size: 1.7em;
+  color: var(--gold-bright);
+  padding-right: 0.05em;
+  text-shadow: 0 0 18px rgba(240, 217, 158, 0.35);
+}
 
+/* words fading in as the response is "revealed" */
 .word-reveal {
-    opacity: 0;
-    display: inline-block;
-    animation: fadeInWord 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0;
+  filter: blur(2px);
+  animation: fadeInWord 0.6s forwards ease-out;
 }
 
 @keyframes fadeInWord {
-    0% { opacity: 0; transform: translateY(5px); filter: blur(2px); text-shadow: none; }
-    100% { opacity: 1; transform: translateY(0); filter: blur(0); text-shadow: 0px 0px 10px rgba(232, 211, 162, 0.3); }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    text-shadow: 0 0 12px rgba(240, 217, 158, 0.18);
+  }
 }
 
-/* ÁREA DE DIGITAÇÃO ESTRUTURADA PARA NÃO CORTAR */
-.input-section {
-    width: 100%;
-    padding: 10px 20px 30px 20px; /* Garante que nunca colará na barra do celular */
-    background: transparent;
-    z-index: 2;
+/* loading dots */
+.loading-dots {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 6px;
+}
+.loading-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.35;
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
 }
 
+/* ============================================
+   SHARE BUTTON
+   ============================================ */
+.share-btn {
+  display: block;
+  margin: 22px auto 0;
+  background: transparent;
+  border: 1px solid var(--divider);
+  color: var(--ink-muted);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.share-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  box-shadow: 0 0 16px rgba(201, 168, 96, 0.15);
+}
+
+/* ============================================
+   INPUT BAR
+   ============================================ */
 #input-container {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 650px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: 60px;
-    display: flex;
-    align-items: center;
-    padding: 8px 12px 8px 24px;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.05);
-    transition: all 0.4s ease;
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 560px;
+  z-index: 3;
+  background: rgba(16, 15, 12, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 168, 96, 0.14);
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 8px 22px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #input-container:focus-within {
-    border-color: rgba(212, 175, 55, 0.4);
-    box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.6), 0px 0px 20px rgba(212, 175, 55, 0.1);
+  border-color: rgba(201, 168, 96, 0.45);
+  box-shadow: 0 0 0 1px rgba(201, 168, 96, 0.12), 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 
 #user-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 1.05rem;
-    outline: none;
-    padding: 10px 0;
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: 0.98rem;
+  outline: none;
 }
 
-#user-input::placeholder { color: var(--text-muted); font-weight: 300; }
+#user-input::placeholder {
+  color: var(--ink-faint);
+}
 
 #send-btn {
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold-primary);
-    cursor: pointer;
-    margin-left: 15px;
-    transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201, 168, 96, 0.3);
+  color: var(--gold-bright);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.25s ease, transform 0.15s ease;
 }
 
-#send-btn svg { width: 18px; height: 18px; transition: transform 0.3s ease; }
-#send-btn:hover { background: var(--gold-primary); color: var(--bg-dark); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
-#send-btn:hover svg { transform: translate(2px, -2px); }
-
-.share-btn {
-    background: transparent;
-    border: 1px solid var(--glass-border);
-    color: rgba(212, 175, 55, 0.6);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-top: 25px;
-    transition: all 0.3s ease;
-    display: inline-block;
+#send-btn:hover {
+  background: rgba(201, 168, 96, 0.28);
 }
 
-.share-btn:hover { border-color: var(--gold-primary); color: var(--gold-primary); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+#send-btn:active {
+  transform: scale(0.92);
+}
 
-#share-card-container { position: fixed; top: -2000px; left: -2000px; z-index: -1000; }
-#share-card { width: 1080px; height: 1350px; background-color: var(--bg-dark); display: flex; flex-direction: column; justify-content: space-between; padding: 120px; border: 2px solid var(--glass-border); }
-#share-card .app-logo-text { font-family: 'Cinzel', serif; color: var(--gold-primary); font-size: 2.2rem; letter-spacing: 3px; text-transform: uppercase; text-align: center; }
-#share-card .bible-msg { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 3.5rem; margin: 60px 0; line-height: 1.5; color: var(--gold-light); }
-#share-card .card-footer { text-align: center; font-family: 'Inter', sans-serif; color: rgba(255, 255, 255, 0.4); font-size: 1.5rem; }
+/* ============================================
+   SHARE CARD (off-screen, captured by html2canvas)
+   ============================================ */
+#share-card-container {
+  position: fixed;
+  top: -3000px;
+  left: -3000px;
+  z-index: -1000;
+}
 
-/* RESPONSIVIDADE PARA DISPOSITIVOS MÓVEIS */
-@media (max-width: 600px) {
-    #chat-timeline { padding: 30px 15px 20px 15px; gap: 30px; }
-    .bible-msg { font-size: 1.3rem; line-height: 1.5; }
-    .user-msg { font-size: 1rem; }
-    .input-section { padding: 10px 15px 20px 15px; } /* Ajuste fino para celular */
-    #input-container { padding: 6px 8px 6px 18px; }
-    #user-input { font-size: 0.95rem; }
-    #send-btn { width: 40px; height: 40px; }
+#share-card {
+  width: 1080px;
+  height: 1350px;
+  background-color: var(--bg-deep);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 110px 100px;
+  border: 1px solid rgba(201, 168, 96, 0.28);
+  box-shadow: inset 0 0 120px rgba(201, 168, 96, 0.06);
+}
+
+#share-card .card-header {
+  text-align: center;
+}
+
+#share-card .app-logo-text {
+  font-family: var(--font-eyebrow);
+  color: var(--gold);
+  font-size: 1.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+#share-card .bible-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 3.1rem;
+  line-height: 1.5;
+  max-width: none;
+  margin: 60px 0;
+  color: var(--ink);
+}
+
+#share-card .card-footer {
+  text-align: center;
+  font-family: var(--font-ui);
+  font-weight: 300;
+  color: var(--ink-faint);
+  font-size: 1.15rem;
+  font-style: italic;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 480px) {
+  #chat-timeline {
+    padding: 6px 18px 140px;
+    gap: 44px;
+  }
+  .bible-msg {
+    font-size: 1.2rem;
+  }
+  .app-brand {
+    font-size: 0.68rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow,
+  .exchange,
+  .word-reveal,
+  .loading-dots span {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+#user-input:focus-visible,
+#send-btn:focus-visible,
+.share-btn:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
 }
